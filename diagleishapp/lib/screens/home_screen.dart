@@ -48,16 +48,25 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: onTabTapped,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(
+              Icons.home,
+              size: 24,
+            ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.biotech),
+            icon: Icon(
+              Icons.biotech,
+              size: 24,
+            ),
             label: 'Análise',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Configuração',
+            icon: Icon(
+              Icons.book,
+              size: 24,
+            ),
+            label: 'Informativos',
           ),
         ],
       ),

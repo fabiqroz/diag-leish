@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:diagleishapp/models/exam.dart';
 import 'package:diagleishapp/utils/app_routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,12 +17,29 @@ class ExamItem extends StatefulWidget {
 }
 
 class _ExamItemState extends State<ExamItem> {
+  final User? user = FirebaseAuth.instance.currentUser;
+
   void _selectModule(BuildContext context) {
     // Navigator.of(context).pushNamed(module.routes);
+    print("here");
+  }
+
+  Future deleteImagens() async {
+    String urlImage = widget.document['url_image'];
+
+    FirebaseStorage.instance
+        .ref()
+        .child(user!.uid)
+        .child('$urlImage.jpg')
+        .delete();
   }
 
   @override
   Widget build(BuildContext context) {
+    final DateTime dateTime = widget.document["time_stamp"].toDate();
+    final DateFormat day = DateFormat('dd/MM/yyyy');
+    final DateFormat hours = DateFormat('H:m');
+
     return Dismissible(
       key: ValueKey(widget.document.id),
       background: slideRightBackground(),
@@ -39,14 +55,34 @@ class _ExamItemState extends State<ExamItem> {
                     "Você tem certeza que deseja deletar este diagnóstico ?"),
                 actions: <Widget>[
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      try {
+                        await deleteImagens().then((value) {
+                          FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(user!.uid)
+                              .collection('diagnoses')
+                              .doc(widget.document.id)
+                              .delete();
+                          Navigator.of(context).pop(true);
+                        });
+                      } catch (err) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text("$err"),
+                          ),
+                        );
+                        Navigator.of(context).pop(false);
+                      }
+                    },
                     child: const Text(
                       "Deletar",
                       style: TextStyle(color: Colors.red),
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.of(context).pop(false),
                     child: const Text("Cancelar"),
                   )
                 ],
@@ -70,7 +106,7 @@ class _ExamItemState extends State<ExamItem> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.of(context).pop(false),
                     child: const Text("Cancelar"),
                   )
                 ],
@@ -89,10 +125,17 @@ class _ExamItemState extends State<ExamItem> {
               radius: 30.0,
               backgroundImage: NetworkImage(widget.document['url_image']),
               backgroundColor: Theme.of(context).primaryColor),
-          title: Text(widget.document['other_symptoms']),
-          subtitle: const Text("ultima modificação 20/08/2000 às 9:45"),
+          title: Text(widget.document.id.toString()),
+          subtitle: Text(
+              'Criado em ${day.format(dateTime)} às ${hours.format(dateTime)}'),
           dense: true,
-          onTap: () {},
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              AppRoutes.examView,
+              arguments: widget.document,
+            );
+          },
         ),
       ),
     );

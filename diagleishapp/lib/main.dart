@@ -1,3 +1,4 @@
+import 'package:diagleishapp/screens/exam_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:diagleishapp/root_page.dart';
@@ -74,6 +75,7 @@ class MyApp extends StatelessWidget {
                 : RootPage(auth: Auth()),
             routes: {
               AppRoutes.result: (context) => const Result(),
+              AppRoutes.examView: (context) => const ExamView(),
             },
           );
         });
